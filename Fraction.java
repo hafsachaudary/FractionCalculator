@@ -5,14 +5,14 @@ class Fraction {
     private int denominator;
 
     /** Constructor for a Fraction.
-     * @param numerator Represents the numerator 
+     * @param numerator Represents the numerator
      * @param denominator Represents the denominator
      */
     Fraction(int numerator, int denominator) throws IllegalArgumentException{
         // this refers to the Fraction so this.numerator that means this fraction's numerator
 
         if (denominator == 0){
-            throw new IllegalArgumentException("Denominator cannot be zero"); 
+            throw new IllegalArgumentException("Denominator cannot be zero");
         }
 
         this.numerator = getSimplifiedNumerator(numerator, denominator);
@@ -65,7 +65,7 @@ class Fraction {
     }
 
     /** Method for finding the simplified numerator
-     * @param numerator Takes a value for the numerator 
+     * @param numerator Takes a value for the numerator
      * @param denominator Takes a value for the denominator
      * @return Returns the simplified numerator
      * @throws IllegalArgumentException Throws an Exception if the denominator is zero
@@ -143,7 +143,7 @@ class Fraction {
         return numerator > 0;
     }
 
-    /** Adds two fractions together 
+    /** Adds two fractions together
      * @param other Represents the second Fraction
      * @return Returns the result of adding two fractions
      */
@@ -161,7 +161,7 @@ class Fraction {
      * @return Returns the result of subtracting two fractions
      */
     Fraction subtract(Fraction other){
-        
+
         return this.add(new Fraction(-1 * other.numerator, other.denominator));
     }
 
@@ -204,33 +204,143 @@ class Fraction {
         return new Fraction(numerator, denominator);
     }
 
+    public static String doOperation(char op, String userInput, int indexOp){
+        String digits = "0123456789";
+        int start = 0;
+        int end = 0;
+        String whole = "";
+
+        String fractionLeft = "";
+
+        for(int i = indexOp - 2; i >= 0; i--){
+            if(userInput.charAt(i) == ' '){
+                i--;
+                while((i) >= 0 && digits.contains(userInput.charAt(i) + "")){
+                    whole = userInput.charAt(i) + whole;
+                    i--;
+                }
+
+                if(i > -1){
+                    start = i + 2;
+                }
+
+                else{
+                    start = i + 1;
+                }
+
+                break;
+            }
+            fractionLeft = userInput.charAt(i) + fractionLeft;
+        }
+
+        if(! whole.equals("")){
+            fractionLeft = whole + " " + fractionLeft;
+        }
+        System.out.println(fractionLeft);
+        Fraction f1 = valueOf(fractionLeft);
+      //  System.out.println("f1 = " + f1);
+
+        String fractionRight = "";
+        whole = "";
+
+        for(int i = indexOp + 2; i < userInput.length();){
+
+            if(userInput.charAt(i)!= ' ')
+                fractionRight = fractionRight + userInput.charAt(i);
+
+            if((i + 1) == userInput.length()){
+                end= i+1;
+                break;
+            }
+            if((i + 1) < userInput.length() && userInput.charAt(i) == ' ' && digits.contains(userInput.charAt(i + 1) + "")){
+                whole = fractionRight;
+                fractionRight = "";
+
+            }
+
+            if((i + 1) < userInput.length() && userInput.charAt(i) == ' ' &&  !digits.contains(userInput.charAt(i + 1) + "")){
+
+                end = i;
+                break;
+            }
+            i++;
+        }
+        fractionRight= fractionRight.replace(" ", "");
+        if(! whole.equals("")){
+            fractionRight = whole + " " + fractionRight;
+        }
+
+        System.out.println(fractionRight);
+        Fraction f2 = valueOf(fractionRight);
+
+        System.out.println(f1);
+        System.out.println(f2);
+        Fraction result = solve(f1, f2, op);
+        //System.out.println("result= " + result);
+
+        if(start!= 0 || end != userInput.length()){
+            return userInput.substring(0, start) + result + userInput.substring(end);
+        }
+        else{
+            return result.toString();
+        }
+
+    }
+
+    public static int getIndex(char op, String userInput){
+        int index = -1;
+
+        for(int i = 0; i < userInput.length(); i++){
+            if(userInput.charAt(i) == op){
+                if(userInput.charAt(i) == '/' && userInput.charAt(i + 1) == ' '){
+                    index = i;
+                }
+                if(op != '/') {
+                    index = i;
+                }
+            }
+        }
+        return index;
+    }
+
+    static Fraction solve(Fraction f1, Fraction f2, char op){
+        if (op == '/')
+            return f1.divide(f2);
+        if (op =='*')
+            return f1.multiply(f2);
+        if (op == '+')
+            return f1.add(f2);
+        else
+            return f1.subtract(f2);
+    }
+
     static void testAdd(){
         Fraction f = new Fraction(-3, 4);
         Fraction g = new Fraction(1, 4, 5);
-        System.out.println(f.add(g)); //  1 1/20
+        //System.out.println(f.add(g)); //  1 1/20
     }
 
     static void testSubtract(){
         Fraction f = new Fraction(8, 20);
         Fraction h = new Fraction(7, 15);
-        System.out.println(f.subtract(h));
+        //System.out.println(f.subtract(h));
     }
 
     static void testMultiply(){
         Fraction f = new Fraction(2, 3, 4);
         Fraction h = new Fraction(5, 10);
-        System.out.println(f.multiply(h));
+        //System.out.println(f.multiply(h));
     }
 
     static void testDivide(){
         Fraction f = new Fraction(5, 1, 4);
         Fraction h = new Fraction(3, 1, 2);
-        System.out.println(f.divide(h));
+        //System.out.println(f.divide(h));
     }
 
     static void testValueOf(){
         Fraction f = valueOf("1 2/7");
-        System.out.println(f);
+        //System.out.println(f);
     }
 
 
@@ -242,77 +352,44 @@ class Fraction {
         testMultiply();
         testDivide();
         testValueOf();
-        
+
 
         Scanner input = new Scanner(System.in);
 
         try{
             String userInput = input.nextLine();
-            //int indexOfSlash = userInput.indexOf("/");
-            //if(userInput.charAt(indexOfSlash + 1) != ' '){
-                //indexOfSlash = userInput.indexOf("/", indexOfSlash + 1);
-            //}
 
-            int indexAsterisk = -1;
-            int indexAdd = -1;
-            int indexSubtract = -1;
-            int indexDivide = -1;
-            int indexSlash = -1;
-            String denominator = "";
-            String numerator = "";
-            String digits = "0123456789";
-            String whole = "";
-
-            for(int i = 0; i < userInput.length(); i++){
-                if(userInput.charAt(i) == '*'){
-                    indexAsterisk = i;
-                }
-                if(userInput.charAt(i) == '+'){
-                    indexAdd = i;
-                }
-                if(userInput.charAt(i) == '-'){
-                    indexSubtract = i;
-                }
-                if(userInput.charAt(i) == '/'){
-                    indexDivide = i;
-                }
+            while(getIndex('/', userInput) > -1){
+                userInput = doOperation('/', userInput, getIndex('/', userInput));
             }
-            System.out.println(indexDivide);
-            System.out.println(indexAdd);
-            System.out.println(indexAsterisk);
-            System.out.println(indexSubtract);
 
-            for(int i = indexAsterisk - 2; i >= 0; i--){
-                if(userInput.charAt(i) == '/'){
-                    indexSlash = i;
-                    break;
-                }
-                denominator = denominator + userInput.charAt(i);
-            }
-            for(int i = indexSlash - 1; i >= 0; i--){
-                if(userInput.charAt(i) == ' '){
-                    if((i-1) >= 0 && digits.contains(userInput.charAt(i - 1) + "")){
-                        //whole = userInput.charAt(i - 1);
+            System.out.println(userInput);
 
-                    }
-                    break;
-                }
-                numerator = numerator + userInput.charAt(i);
+            while(getIndex('*', userInput) > -1){
+                userInput = doOperation('*', userInput, getIndex('*', userInput));
             }
-            System.out.println(numerator);
-            System.out.println(denominator);
-            Fraction f1 = new Fraction(Integer.valueOf(numerator), Integer.valueOf(denominator));
-            System.out.println(f1);
-            
+            System.out.println(userInput);
+
+            while(getIndex('+', userInput) > -1){
+                userInput = doOperation('+', userInput, getIndex('+', userInput));
+            }
+            System.out.println(userInput);
+
+
+
+            while(getIndex('-', userInput)> -1)
+                userInput = doOperation('-', userInput, getIndex('-', userInput));
+            System.out.println(userInput);
+
         }
         catch (IllegalArgumentException e){
             System.out.println(e.getMessage());
         }
-        
-        
 
 
-  
+
+
+
 
     }
 
